@@ -20,6 +20,8 @@ PLATFORMS: list[Platform] = [Platform.CLIMATE, Platform.SENSOR]
 
 async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     """Set up the Roth Heating System component."""
+    # Register the config flow
+    hass.data.setdefault(DOMAIN, {})
     return True
 
 

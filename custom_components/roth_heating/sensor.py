@@ -153,8 +153,9 @@ class RothSystemStatusSensor(RothBaseSensor):
         devices = self.coordinator.data.get("devices", {})
         return {
             "total_zones": len(devices),
-            "connection_status": "connected" if self.coordinator.last_update_success else "disconnected",
+            "connection_status": "connected" if self.coordinator.last_update_success else "disconnected", 
             "controller_host": self._config_entry.data.get("host"),
+            "update_interval": self._config_entry.data.get("scan_interval", 30),
         }
 
 

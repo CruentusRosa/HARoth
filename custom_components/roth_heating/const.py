@@ -26,7 +26,7 @@ from homeassistant.components.climate import HVACMode
 OPERATION_MODES = {
     0: HVACMode.AUTO,
     1: HVACMode.HEAT, 
-    2: HVACMode.ECO,
+    2: HVACMode.AUTO,  # ECO mode maps to AUTO
     3: HVACMode.OFF
 }
 
@@ -34,7 +34,6 @@ OPERATION_MODES = {
 HVAC_MODES = {
     HVACMode.AUTO: 0,
     HVACMode.HEAT: 1,
-    HVACMode.ECO: 2, 
     HVACMode.OFF: 3
 }
 

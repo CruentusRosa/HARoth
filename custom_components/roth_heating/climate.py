@@ -84,7 +84,6 @@ class RothClimate(CoordinatorEntity[RothDataUpdateCoordinator], ClimateEntity):
         self._attr_hvac_modes = [
             HVACMode.AUTO,
             HVACMode.HEAT,
-            HVACMode.ECO,
             HVACMode.OFF,
         ]
     

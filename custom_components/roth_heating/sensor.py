@@ -1,12 +1,10 @@
 """Sensor platform for Roth Heating System."""
-from homeassistant.components.sensor import SensorEntity, SensorStateClass
+from homeassistant.components.sensor import SensorEntity
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import UnitOfTemperature
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import DOMAIN, OPERATION_MODES, WEEK_PROGRAMS
+from .const import DOMAIN
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -14,107 +12,8 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up Roth sensor entities from config entry."""
-    coordinator = hass.data[DOMAIN][config_entry.entry_id]["coordinator"]
-    
-    entities = []
-    
-    # System status sensor
-    entities.append(
-        RothSystemSensor(
-            coordinator=coordinator,
-            name="System Status",
-            unique_id="roth_system_status",
-        )
-    )
-    
-    # Create sensors for each device
-    if coordinator.data and "devices" in coordinator.data:
-        for device_id, device_data in coordinator.data["devices"].items():
-            device_name = device_data.get("Name", f"Zone {device_id + 1}")
-            
-            # Current temperature sensor
-            entities.append(
-                RothDeviceSensor(
-                    coordinator=coordinator,
-                    device_id=device_id,
-                    device_name=device_name,
-                    sensor_type="current_temperature",
-                    name="Current Temperature",
-                    unit=UnitOfTemperature.CELSIUS,
-                    state_class=SensorStateClass.MEASUREMENT,
-                )
-            )
-            
-            # Target temperature sensor
-            entities.append(
-                RothDeviceSensor(
-                    coordinator=coordinator,
-                    device_id=device_id,
-                    device_name=device_name,
-                    sensor_type="target_temperature",
-                    name="Target Temperature",
-                    unit=UnitOfTemperature.CELSIUS,
-                    state_class=SensorStateClass.MEASUREMENT,
-                )
-            )
-    
-    async_add_entities(entities)
-
-class RothSystemSensor(CoordinatorEntity, SensorEntity):
-    """Sensor for system-wide information."""
-    
-    def __init__(self, coordinator, name: str, unique_id: str) -> None:
-        """Initialize the sensor."""
-        super().__init__(coordinator)
-        self._attr_name = f"Roth {name}"
-        self._attr_unique_id = unique_id
-        self._attr_icon = "mdi:check-circle"
-    
-    @property
-    def native_value(self):
-        """Return the state of the sensor."""
-        if self.coordinator.data and "system_status" in self.coordinator.data:
-            return self.coordinator.data["system_status"]
-        return "Unknown"
-
-class RothDeviceSensor(CoordinatorEntity, SensorEntity):
-    """Sensor for device-specific information."""
-    
-    def __init__(
-        self, 
-        coordinator, 
-        device_id: int, 
-        device_name: str, 
-        sensor_type: str,
-        name: str,
-        unit: str = None,
-        state_class: SensorStateClass = None,
-    ) -> None:
-        """Initialize the sensor."""
-        super().__init__(coordinator)
-        self._device_id = device_id
-        self._sensor_type = sensor_type
-        self._attr_name = f"Roth {device_name} {name}"
-        self._attr_unique_id = f"roth_{device_id}_{sensor_type}"
-        self._attr_native_unit_of_measurement = unit
-        self._attr_state_class = state_class
-        self._attr_icon = "mdi:thermometer" if "temperature" in sensor_type else "mdi:thermostat"
-    
-    @property
-    def device_data(self):
-        """Get current device data."""
-        if self.coordinator.data and "devices" in self.coordinator.data:
-            return self.coordinator.data["devices"].get(self._device_id, {})
-        return {}
-    
-    @property
-    def native_value(self):
-        """Return the state of the sensor."""
-        if self._sensor_type == "current_temperature":
-            return self.device_data.get("Temperature")
-        elif self._sensor_type == "target_temperature":
-            return self.device_data.get("Setpoint")
-        return None
+    # Temporarily disabled - no sensors to avoid import issues
+    async_add_entities([])
 
 _LOGGER = logging.getLogger(__name__)
 

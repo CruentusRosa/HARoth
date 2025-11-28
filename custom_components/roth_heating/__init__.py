@@ -12,7 +12,7 @@ from .const import DOMAIN, CONF_HOST, CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL
 
 _LOGGER = logging.getLogger(__name__)
 
-PLATFORMS: list[Platform] = [Platform.CLIMATE, Platform.SENSOR]
+PLATFORMS: list[Platform] = [Platform.CLIMATE]  # Removed SENSOR temporarily
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Roth Heating from a config entry."""

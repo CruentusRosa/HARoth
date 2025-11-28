@@ -7,7 +7,7 @@ Complete Home Assistant integration for Roth TouchLine heating systems.
 1. Open HACS in Home Assistant
 2. Click on "Integrations"
 3. Click the three dots in the top right corner and select "Custom repositories"
-4. Add this repository URL: `https://github.com/yourusername/roth-heating-ha`
+4. Add this repository URL: `https://github.com/CruentusRosa/HARoth`
 5. Category: "Integration"
 6. Click "Add"
 7. Search for "Roth Heating System" and install it

@@ -1,13 +1,13 @@
 {
   "domain": "roth_heating",
   "name": "Roth Heating System",
-  "codeowners": ["@yourusername"],
+  "codeowners": ["@CruentusRosa"],
   "config_flow": true,
   "dependencies": [],
-  "documentation": "https://github.com/yourusername/roth-heating-ha",
+  "documentation": "https://github.com/CruentusRosa/HARoth",
   "integration_type": "device",
   "iot_class": "local_polling",
   "requirements": ["httpx>=0.24.0"],
   "version": "1.0.0",
-  "issue_tracker": "https://github.com/yourusername/roth-heating-ha/issues"
+  "issue_tracker": "https://github.com/CruentusRosa/HARoth/issues"
 }

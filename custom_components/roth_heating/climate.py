@@ -19,7 +19,6 @@ async def async_setup_entry(
 ) -> None:
     """Set up Roth climate entities from config entry."""
     coordinator = hass.data[DOMAIN][config_entry.entry_id]["coordinator"]
-    api = hass.data[DOMAIN][config_entry.entry_id]["api"]
     
     entities = []
     
@@ -29,7 +28,7 @@ async def async_setup_entry(
             entities.append(
                 RothClimate(
                     coordinator=coordinator,
-                    api=api,
+                    config_entry=config_entry,
                     device_id=device_id,
                     device_name=device_data.get("Name", f"Zone {device_id + 1}"),
                 )
@@ -40,10 +39,10 @@ async def async_setup_entry(
 class RothClimate(CoordinatorEntity, ClimateEntity):
     """Representation of a Roth heating zone."""
     
-    def __init__(self, coordinator, api, device_id: int, device_name: str) -> None:
+    def __init__(self, coordinator, config_entry, device_id: int, device_name: str) -> None:
         """Initialize the climate entity."""
         super().__init__(coordinator)
-        self.api = api
+        self._config_entry = config_entry
         self._device_id = device_id
         self._device_name = device_name
         self._attr_unique_id = f"roth_climate_{device_id}"
@@ -88,7 +87,7 @@ class RothClimate(CoordinatorEntity, ClimateEntity):
         """Set new target temperature."""
         temperature = kwargs.get(ATTR_TEMPERATURE)
         if temperature is not None:
-            success = await self.api.set_target_temperature(self._device_id, temperature)
+            success = await self.coordinator.async_set_temperature(self._device_id, temperature)
             if success:
                 await self.coordinator.async_request_refresh()
     
@@ -101,6 +100,6 @@ class RothClimate(CoordinatorEntity, ClimateEntity):
         }
         operation_mode = mode_map.get(hvac_mode)
         if operation_mode is not None:
-            success = await self.api.set_operation_mode(self._device_id, operation_mode)
+            success = await self.coordinator.async_set_mode(self._device_id, operation_mode)
             if success:
                 await self.coordinator.async_request_refresh()

@@ -3,19 +3,23 @@
     "step": {
       "user": {
         "title": "Roth Heating System",
-        "description": "Configure your Roth TouchLine controller",
+        "description": "Configure your Roth TouchLine controller connection",
         "data": {
-          "host": "IP Address",
-          "scan_interval": "Update interval (seconds)"
+          "host": "IP Address (e.g., 192.168.1.100)",
+          "scan_interval": "Update interval in seconds (5-300)"
+        },
+        "data_description": {
+          "host": "The IP address of your Roth TouchLine controller on your local network",
+          "scan_interval": "How often to check for updates from the controller"
         }
       }
     },
     "error": {
-      "cannot_connect": "Failed to connect to Roth controller. Please check the IP address and ensure the controller is accessible on your network.",
-      "unknown": "Unexpected error occurred"
+      "cannot_connect": "Failed to connect to Roth controller. Please verify the IP address and ensure the controller is accessible on your network.",
+      "unknown": "An unexpected error occurred. Please check the logs for more details."
     },
     "abort": {
-      "already_configured": "This Roth controller is already configured"
+      "already_configured": "This Roth controller is already configured. Each controller can only be added once."
     }
   }
 }

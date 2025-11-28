@@ -1,8 +1,39 @@
 # Roth Heating System - Home Assistant Custom Component
 
-Complete Home Assistant integration for Roth TouchLine heating systems.
+Complete Home Assistant integration for Roth TouchLine heating systems with advanced sensors and robust climate control.
 
-## Installation via HACS (Recommended)
+## 🌟 Features
+
+- **Full Climate Control**: Complete temperature and mode control for all zones
+- **Comprehensive Sensors**: Temperature, heating status, operation modes, and system monitoring  
+- **HACS Compatible**: Easy installation and updates via Home Assistant Community Store
+- **Smart Data Coordination**: Intelligent updates with configurable intervals
+- **Robust Error Handling**: Extensive logging and error recovery
+- **Device Organization**: Proper device identification and organization in Home Assistant
+
+## 📋 Supported Entities
+
+### Climate Entities
+- Temperature control (5°C - 30°C) with 0.5°C precision
+- HVAC modes: Auto, Heat, Off
+- Current and target temperature display
+- Zone-specific device information
+
+### Sensor Entities
+**Per Zone:**
+- Current Temperature - Real-time temperature readings
+- Target Temperature - Set point temperature  
+- Heating Status - Active heating state (Heating/Demand/Satisfied/Off)
+- Operation Mode - Current mode (auto/heat/eco/off)
+
+**System Level:**
+- System Status - Overall system health (OK/Warning/Error/Active)
+- Connection Status - Controller connectivity monitoring
+- Zone count and activity statistics
+
+## 🚀 Installation
+
+### Via HACS (Recommended)
 
 1. Open HACS in Home Assistant
 2. Click on "Integrations"

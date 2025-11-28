@@ -1,0 +1,50 @@
+{
+  "roth_heating_system": {
+    "system_info": {
+      "controller_model": "ROTH-02EF0C",
+      "controller_url": "http://192.168.86.29",
+      "scada_system": "SpiderControl",
+      "total_zones": 7,
+      "system_status": "OK (0)",
+      "authentication_required": false,
+      "write_operations_enabled": true
+    },
+    "communication": {
+      "protocol": "HTTP POST with XML",
+      "read_endpoint": "/cgi-bin/ILRReadValues.cgi",
+      "write_endpoint": "/cgi-bin/writeVal.cgi",
+      "xml_client": "IMaster6_02_00",
+      "xml_client_version": "6.02.0006",
+      "temperature_scale": "centi-degrees (divide by 100 for Celsius)"
+    },
+    "operation_modes": {
+      "0": "AUTO/NORMAL - Standard automatic operation",
+      "1": "MANUAL/COMFORT - Manual override to comfort temperature",
+      "2": "ECO/SETBACK - Energy saving reduced temperature",
+      "3": "OFF/FROST_PROTECTION - Minimal heating protection"
+    },
+    "heating_zones": {
+      "zone_0": {"name": "Stue", "device_id": 1},
+      "zone_1": {"name": "Kontor", "device_id": 2},
+      "zone_2": {"name": "Sovevaerelse", "device_id": 3},
+      "zone_3": {"name": "Walkin closet", "device_id": 4},
+      "zone_4": {"name": "Gang", "device_id": 5},
+      "zone_5": {"name": "Stort badeværelse", "device_id": 6},
+      "zone_6": {"name": "Lille badeværelse", "device_id": 7}
+    },
+    "api_examples": {
+      "read_all_zones": {
+        "method": "POST",
+        "url": "http://192.168.86.29/cgi-bin/ILRReadValues.cgi",
+        "headers": {"Content-Type": "text/xml"},
+        "body_template": "<body><version>1.0</version><client>IMaster6_02_00</client><client_ver>6.02.0006</client_ver><file_name>room</file_name><item_list_size>0</item_list_size><item_list><i><n>G{device_id}.name</n><n>G{device_id}.RaumTemp</n><n>G{device_id}.SollTemp</n><n>G{device_id}.OPMode</n></i></item_list></body>"
+      },
+      "write_temperature": {
+        "method": "POST", 
+        "url": "http://192.168.86.29/cgi-bin/writeVal.cgi",
+        "headers": {"Content-Type": "application/x-www-form-urlencoded"},
+        "body_template": "G{device_id}.SollTemp={temperature_raw_value}"
+      }
+    }
+  }
+}

@@ -12,6 +12,23 @@ CONF_SCAN_INTERVAL = "scan_interval"
 DEFAULT_SCAN_INTERVAL = 30
 DEFAULT_NAME = "Roth Heating"
 
+# Operation modes mapping
+OPERATION_MODES = {
+    0: "auto",
+    1: "heat", 
+    2: "auto",  # ECO mode maps to auto
+    3: "off"
+}
+
+# Week programs
+WEEK_PROGRAMS = {
+    0: "default",
+    1: "program_1",
+    2: "program_2", 
+    3: "program_3",
+    4: "program_4"
+}
+
 # Temperature limits
 MIN_TEMP = 5.0
 MAX_TEMP = 30.0

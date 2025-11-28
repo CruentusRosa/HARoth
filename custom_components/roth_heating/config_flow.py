@@ -24,10 +24,11 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
 )
 
 
-class RothConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
+class RothHeatingConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle a config flow for Roth Heating System."""
 
     VERSION = 1
+    CONNECTION_CLASS = config_entries.CONN_CLASS_LOCAL_POLLING
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None

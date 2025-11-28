@@ -24,42 +24,44 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
 )
 
 
-class ConfigFlow(config_entries.ConfigFlow):
+async def _validate_input(hass, data):
+    """Validate the user input allows us to connect."""
+    api = RothHeatingAPI(data[CONF_HOST])
+    await api.get_system_status()
+    return {"title": f"Roth Heating ({data[CONF_HOST]})"}
+
+
+class RothHeatingConfigFlow(config_entries.ConfigFlow):
     """Handle a config flow for Roth Heating System."""
 
     VERSION = 1
 
-    def __init__(self):
-        """Initialize config flow."""
+    def __init__(self) -> None:
+        """Initialize the config flow."""
         super().__init__()
+
+    @property
+    def domain(self) -> str:
+        """Return the domain of the config flow."""
+        return DOMAIN
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
         """Handle the initial step."""
-        if user_input is None:
-            return self.async_show_form(
-                step_id="user", data_schema=STEP_USER_DATA_SCHEMA
-            )
-
         errors = {}
-
-        try:
-            # Test connection to the Roth controller
-            api = RothHeatingAPI(user_input[CONF_HOST])
-            await api.get_system_status()
-        except Exception:  # pylint: disable=broad-except
-            _LOGGER.exception("Unexpected exception")
-            errors["base"] = "cannot_connect"
-        else:
-            # Check if already configured
-            await self.async_set_unique_id(user_input[CONF_HOST])
-            self._abort_if_unique_id_configured()
-            
-            return self.async_create_entry(
-                title=f"Roth Heating ({user_input[CONF_HOST]})",
-                data=user_input,
-            )
+        if user_input is not None:
+            try:
+                info = await _validate_input(self.hass, user_input)
+            except Exception:  # pylint: disable=broad-except
+                _LOGGER.exception("Unexpected exception")
+                errors["base"] = "cannot_connect"
+            else:
+                # Check if already configured
+                await self.async_set_unique_id(user_input[CONF_HOST])
+                self._abort_if_unique_id_configured()
+                
+                return self.async_create_entry(title=info["title"], data=user_input)
 
         return self.async_show_form(
             step_id="user", data_schema=STEP_USER_DATA_SCHEMA, errors=errors

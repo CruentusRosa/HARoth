@@ -22,6 +22,10 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     """Set up the Roth Heating System component."""
     # Register the config flow
     hass.data.setdefault(DOMAIN, {})
+    
+    # Import and register config flow
+    from . import config_flow  # noqa: F401
+    
     return True
 
 

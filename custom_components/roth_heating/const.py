@@ -20,7 +20,7 @@ API_WRITE_ENDPOINT = "/cgi-bin/writeVal.cgi"
 XML_CLIENT = "IMaster6_02_00"
 XML_CLIENT_VERSION = "6.02.0006"
 
-# Operation modes mapping (fixed import issue)
+# Operation modes mapping - FIXED: Removed HVACMode.ECO (v1.0.4)
 from homeassistant.components.climate import HVACMode
 
 OPERATION_MODES = {

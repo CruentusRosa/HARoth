@@ -8,6 +8,6 @@
   "integration_type": "device",
   "iot_class": "local_polling",
   "requirements": ["httpx>=0.24.0"],
-  "version": "1.2.0",
+  "version": "1.2.1",
   "issue_tracker": "https://github.com/CruentusRosa/HARoth/issues"
 }

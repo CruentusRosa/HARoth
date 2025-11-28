@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.1] - 2024-12-19
+
+### Fixed
+- Fixed AttributeError in sensor platform: `last_update_success_time` does not exist on coordinator
+- Replaced timestamp attribute with proper connection status boolean mapping
+- Resolved sensor initialization error that prevented integration from loading properly
+
 ## [1.2.0] - 2024-12-19
 
 ### Added

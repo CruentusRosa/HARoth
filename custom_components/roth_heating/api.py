@@ -57,7 +57,9 @@ class RothHeatingAPI:
     async def request_and_receive_xml(self, req_body: str) -> ET.Element:
         """Send HTTP request and parse XML response."""
         try:
-            async with httpx.AsyncClient(timeout=self.timeout) as client:
+            # Create client without context manager to avoid SSL blocking issues
+            client = httpx.AsyncClient(timeout=self.timeout, verify=False)
+            try:
                 response = await client.post(
                     url=self.base_url + self._read_path,
                     content=req_body,
@@ -68,6 +70,8 @@ class RothHeatingAPI:
                     raise Exception(f"HTTP error: {response.status_code}")
                 
                 return ET.fromstring(response.content)
+            finally:
+                await client.aclose()
                 
         except Exception as e:
             _LOGGER.error(f"Network request failed: {e}")
@@ -201,3 +205,77 @@ class RothHeatingAPI:
         except Exception as e:
             _LOGGER.error(f"Failed to get all devices data: {e}")
             raise
+
+    async def set_temperature(self, device_id: int, temperature: float) -> bool:
+        """Set target temperature for a device."""
+        try:
+            return await self.set_target_temperature(device_id, temperature)
+        except Exception as e:
+            _LOGGER.error(f"Failed to set temperature: {e}")
+            return False
+
+    async def set_operation_mode(self, device_id: int, mode: int) -> bool:
+        """Set operation mode for a device."""
+        try:
+            return await self.set_mode(device_id, mode)
+        except Exception as e:
+            _LOGGER.error(f"Failed to set operation mode: {e}")
+            return False
+
+    async def set_target_temperature(self, device_id: int, temperature: float) -> bool:
+        """Set target temperature for specific device."""
+        try:
+            # Create POST request for setting temperature
+            client = httpx.AsyncClient(timeout=self.timeout, verify=False)
+            try:
+                url = f"{self.base_url}{self._write_path}"
+                data = {
+                    'ID': device_id,
+                    'OBJ': 'TempSetpoint',
+                    'VAL': temperature
+                }
+                
+                response = await client.post(url, data=data, headers={"Content-Type": "application/x-www-form-urlencoded"})
+                
+                if response.status_code == 200:
+                    _LOGGER.debug(f"Successfully set temperature {temperature}°C for device {device_id}")
+                    return True
+                else:
+                    _LOGGER.error(f"Failed to set temperature: HTTP {response.status_code}")
+                    return False
+                    
+            finally:
+                await client.aclose()
+                
+        except Exception as e:
+            _LOGGER.error(f"Exception setting temperature: {e}")
+            return False
+
+    async def set_mode(self, device_id: int, mode: int) -> bool:
+        """Set operation mode for specific device."""
+        try:
+            # Create POST request for setting mode
+            client = httpx.AsyncClient(timeout=self.timeout, verify=False)
+            try:
+                url = f"{self.base_url}{self._write_path}"
+                data = {
+                    'ID': device_id,
+                    'OBJ': 'OperationMode',
+                    'VAL': mode
+                }
+                
+                response = await client.post(url, data=data, headers={"Content-Type": "application/x-www-form-urlencoded"})
+                
+                if response.status_code == 200:
+                    _LOGGER.debug(f"Successfully set mode {mode} for device {device_id}")
+                    return True
+                else:
+                    _LOGGER.error(f"Failed to set mode: HTTP {response.status_code}")
+                    return False
+                    
+            finally:
+                await client.aclose()
+                
+        except Exception as e:
+            _LOGGER.error(f"Exception setting mode: {e}")
+            return False

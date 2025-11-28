@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.3] - 2024-12-19
+
+### Fixed
+- Fixed blocking SSL call warning by using proper httpx client management
+- Added missing set_temperature and set_operation_mode methods to API
+- Resolved AttributeError when trying to control temperature from climate entities
+- Improved error handling and logging in temperature/mode setting functions
+- Better async client cleanup to prevent memory leaks
+
+### Changed
+- Disabled SSL verification for local controller communication
+- Enhanced API error handling with more descriptive messages
+
 ## [1.2.2] - 2024-12-19
 
 ### Fixed

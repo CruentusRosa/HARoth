@@ -146,46 +146,6 @@ class RothHeatingAPI:
             _LOGGER.error(f"Failed to get device {device_id} data: {e}")
             raise
 
-    async def set_target_temperature(self, device_id: int, temperature: float) -> bool:
-        """Set target temperature for a device."""
-        try:
-            # Convert temperature to raw value (multiply by 100)
-            raw_temp = int(temperature * 100)
-            
-            # Build form data for write request
-            form_data = f"G{device_id}.SollTemp={raw_temp}"
-            
-            async with httpx.AsyncClient(timeout=self.timeout) as client:
-                response = await client.post(
-                    url=self.base_url + self._write_path,
-                    content=form_data,
-                    headers={"Content-Type": "application/x-www-form-urlencoded"}
-                )
-                
-                return response.status_code == 200
-                
-        except Exception as e:
-            _LOGGER.error(f"Failed to set temperature for device {device_id}: {e}")
-            return False
-
-    async def set_operation_mode(self, device_id: int, mode: int) -> bool:
-        """Set operation mode for a device."""
-        try:
-            form_data = f"G{device_id}.OPMode={mode}"
-            
-            async with httpx.AsyncClient(timeout=self.timeout) as client:
-                response = await client.post(
-                    url=self.base_url + self._write_path,
-                    content=form_data,
-                    headers={"Content-Type": "application/x-www-form-urlencoded"}
-                )
-                
-                return response.status_code == 200
-                
-        except Exception as e:
-            _LOGGER.error(f"Failed to set operation mode for device {device_id}: {e}")
-            return False
-
     async def get_all_devices_data(self) -> Dict[int, Dict[str, Any]]:
         """Get data for all devices."""
         try:
@@ -206,76 +166,59 @@ class RothHeatingAPI:
             _LOGGER.error(f"Failed to get all devices data: {e}")
             raise
 
-    async def set_temperature(self, device_id: int, temperature: float) -> bool:
-        """Set target temperature for a device."""
-        try:
-            return await self.set_target_temperature(device_id, temperature)
-        except Exception as e:
-            _LOGGER.error(f"Failed to set temperature: {e}")
-            return False
 
-    async def set_operation_mode(self, device_id: int, mode: int) -> bool:
-        """Set operation mode for a device."""
+    async def write_parameter(self, device_id: int, parameter: str, value) -> bool:
+        """Write one parameter to the controller.
+
+        The TouchLine controller takes writes as a plain GET:
+            /cgi-bin/writeVal.cgi?G<device_id>.<parameter>=<value>
+        and answers with the value it stored (same protocol as pytouchline,
+        which the former Home Assistant core 'touchline' integration used).
+        Temperatures are sent as hundredths of a degree ("2200.0" for 22.0 °C).
+        """
+        value_str = str(value)
+        url = f"{self.base_url}{self._write_path}?G{device_id}.{parameter}={value_str}"
+        client = httpx.AsyncClient(timeout=self.timeout, verify=False)
         try:
-            return await self.set_mode(device_id, mode)
+            response = await client.get(url)
+            if response.status_code != 200:
+                _LOGGER.error(
+                    "Failed to write G%s.%s=%s: HTTP %s", device_id, parameter, value_str, response.status_code
+                )
+                return False
+
+            echoed = response.text.strip()
+            try:
+                if float(echoed) != float(value_str):
+                    _LOGGER.error(
+                        "Controller stored %s for G%s.%s, expected %s", echoed, device_id, parameter, value_str
+                    )
+                    return False
+            except ValueError:
+                _LOGGER.warning(
+                    "Unexpected reply %r when writing G%s.%s=%s; assuming success (HTTP 200)",
+                    echoed, device_id, parameter, value_str,
+                )
+            _LOGGER.debug("Wrote G%s.%s=%s", device_id, parameter, value_str)
+            return True
         except Exception as e:
-            _LOGGER.error(f"Failed to set operation mode: {e}")
+            _LOGGER.error("Exception writing G%s.%s=%s: %s", device_id, parameter, value_str, e)
             return False
+        finally:
+            await client.aclose()
 
     async def set_target_temperature(self, device_id: int, temperature: float) -> bool:
-        """Set target temperature for specific device."""
-        try:
-            # Create POST request for setting temperature
-            client = httpx.AsyncClient(timeout=self.timeout, verify=False)
-            try:
-                url = f"{self.base_url}{self._write_path}"
-                data = {
-                    'ID': device_id,
-                    'OBJ': 'TempSetpoint',
-                    'VAL': temperature
-                }
-                
-                response = await client.post(url, data=data, headers={"Content-Type": "application/x-www-form-urlencoded"})
-                
-                if response.status_code == 200:
-                    _LOGGER.debug(f"Successfully set temperature {temperature}°C for device {device_id}")
-                    return True
-                else:
-                    _LOGGER.error(f"Failed to set temperature: HTTP {response.status_code}")
-                    return False
-                    
-            finally:
-                await client.aclose()
-                
-        except Exception as e:
-            _LOGGER.error(f"Exception setting temperature: {e}")
-            return False
+        """Set target temperature (°C) for a device."""
+        return await self.write_parameter(device_id, "SollTemp", float(temperature) * 100)
+
+    async def set_temperature(self, device_id: int, temperature: float) -> bool:
+        """Alias for set_target_temperature (used by the coordinator)."""
+        return await self.set_target_temperature(device_id, temperature)
+
+    async def set_operation_mode(self, device_id: int, mode: int) -> bool:
+        """Set operation mode for a device (0 = auto, 1 = heat/day, 3 = off)."""
+        return await self.write_parameter(device_id, "OPMode", int(mode))
 
     async def set_mode(self, device_id: int, mode: int) -> bool:
-        """Set operation mode for specific device."""
-        try:
-            # Create POST request for setting mode
-            client = httpx.AsyncClient(timeout=self.timeout, verify=False)
-            try:
-                url = f"{self.base_url}{self._write_path}"
-                data = {
-                    'ID': device_id,
-                    'OBJ': 'OperationMode',
-                    'VAL': mode
-                }
-                
-                response = await client.post(url, data=data, headers={"Content-Type": "application/x-www-form-urlencoded"})
-                
-                if response.status_code == 200:
-                    _LOGGER.debug(f"Successfully set mode {mode} for device {device_id}")
-                    return True
-                else:
-                    _LOGGER.error(f"Failed to set mode: HTTP {response.status_code}")
-                    return False
-                    
-            finally:
-                await client.aclose()
-                
-        except Exception as e:
-            _LOGGER.error(f"Exception setting mode: {e}")
-            return False
+        """Alias for set_operation_mode."""
+        return await self.set_operation_mode(device_id, mode)
